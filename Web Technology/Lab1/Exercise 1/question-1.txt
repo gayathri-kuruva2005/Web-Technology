@@ -1,7 +1,0 @@
-Exercise 1: HTML Table 
-Create a Student Marksheet Table 
-Design an HTML table that displays marks for five students. 
-The table must include: 
-•	Columns: Roll No, Name, Subject 1, Subject 2, Subject 3, Total • A header row using <thead> 
-•	Remaining rows in <tbody> 
-•	Use <th> tags for headings and <td> tags for data cells 

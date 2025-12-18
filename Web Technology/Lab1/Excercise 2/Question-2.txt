@@ -1,7 +1,0 @@
-Exercise 2: HTML Form 
-Create a Basic Contact Form 
-Design a simple contact form using HTML. 
-The form should include: 
-•	Name, Email, and Message fields 
-•	A Submit button 
-Structure the form using <form>, <label>, <input>, and <textarea> tags. 
