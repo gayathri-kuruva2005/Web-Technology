@@ -1,0 +1,12 @@
+Exercise 5: Personal Portfolio Webpage (HTML + CSS) 
+Create a simple personal portfolio webpage using HTML and CSS. Your page must include: 
+•	A header with your name and a short tagline 
+•	An “About Me” section with a paragraph describing yourself 
+•	A “Skills” section using a list 
+•	A “Projects” section with at least two project titles 
+•	A footer with your email or contact details 
+Use CSS to: 
+•	Style the header with background color and centered text 
+•	Add spacing, fonts, and basic colors to each section 
+•	
+•	Arrange content cleanly using margins and padding
