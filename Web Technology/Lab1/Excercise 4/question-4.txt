@@ -1,0 +1,11 @@
+Exercise 4: CSS 
+Style a Product Card Using CSS 
+Create a simple product card with HTML and apply CSS to style it. Your card must include:
+•	Product image 
+•	Title and short description 
+•	Price 
+•	A “Buy Now” button 
+Use CSS to: 
+•	Add borders, padding, and margins 
+•	Apply box-shadow 
+•	Style the button with hover effects 
