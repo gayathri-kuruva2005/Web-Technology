@@ -1,0 +1,41 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    display: flex;
+    justify-content: center;
+    padding: 40px;
+}
+
+.media-container {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+}
+
+h2 {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.time-display {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #555;
+    font-family: monospace;
+    font-size: 1.1em;
+}
+
+hr {
+    margin: 40px 0;
+    border: 0;
+    border-top: 1px solid #eee;
+}
+
+video {
+    border-radius: 8px;
+    background: #000;
+}

@@ -1,0 +1,19 @@
+/* Ensure the html and body take up the full height of the browser window */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    justify-content: center; /* Centers horizontally (Left to Right) */
+    align-items: center;     /* Centers vertically (Top to Bottom) */
+    background-color: #f0f0f0;
+}
+
+canvas {
+    background-color: #ffffff;
+    border: 2px solid #333;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}

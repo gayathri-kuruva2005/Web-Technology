@@ -1,0 +1,22 @@
+Exercise 4: Advanced Local Storage User Management System
+
+Design a User Registration & Management system using HTML, CSS and JavaScript.
+The page must contain:
+• Registration form with:
+•	Name
+•	Email
+•	Mobile Number
+•	Password
+Validations:
+• All fields must be mandatory
+• Mobile number must be 10 digits
+• Password must be minimum 6 characters
+Functional Requirements:
+• On Submit:
+•	Store all user details in localStorage as objects
+•	Do not allow duplicate email registrations
+• Display Users:
+•	Show all registered users in a table format
+•	Provide a Delete button for each user
+•	On delete, remove the user from localStorage and update table
+• Provide a Clear All Users button to erase complete storage

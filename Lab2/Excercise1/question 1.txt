@@ -1,0 +1,10 @@
+Exercise 1: HTML5 Canvas
+
+Create a web page that contains a <canvas> element.
+The canvas must:
+• Have a size of 500 × 300
+• Display a filled rectangle
+• Display a filled circle
+• Display a straight line
+• Display the text “HTML5 Canvas” inside the canvas
+• All shapes and text must be drawn using JavaScript

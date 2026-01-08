@@ -1,0 +1,8 @@
+Exercise 2: HTML5 Audio and Video
+
+Design a multimedia web page that contains:
+• One audio player
+• One video player
+• Both players must include play, pause and volume controls
+• Display the current playing time dynamically
+• Add suitable headings for audio and video
