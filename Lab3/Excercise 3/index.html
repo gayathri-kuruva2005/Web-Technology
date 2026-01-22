@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Survey Builder</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            padding: 40px;
+            margin: 0;
+        }
+
+        .survey-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 500px;
+        }
+
+        h2 { color: #1a73e8; text-align: center; margin-bottom: 25px; }
+
+        .question-wrapper {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+            transition: all 0.3s ease;
+        }
+
+        .question-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        /* Input Styles */
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        /* Validation UI */
+        .error-text {
+            color: #d93025;
+            font-size: 12px;
+            margin-top: 8px;
+            font-weight: 500;
+            display: none; /* Hidden by default */
+        }
+
+        .invalid-field {
+            border-color: #d93025;
+            background-color: #fce8e6;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover { background-color: #1557b0; }
+    </style>
+</head>
+<body>
+
+<div class="survey-card">
+    <h2>Dynamic Survey Builder</h2>
+    <form id="dynamicSurveyForm">
+        <div id="surveyFields"></div>
+        
+        <button type="submit">Submit Responses</button>
+    </form>
+</div>
+
+
+
+<script>
+    // 1. DATA STRUCTURE: Store questions and rules
+    const surveyConfig = [
+        {
+            id: "full_name",
+            label: "Full Name",
+            type: "text",
+            required: true,
+            minLength: 3
+        },
+        {
+            id: "user_role",
+            label: "What is your primary role?",
+            type: "radio",
+            options: ["Student", "Faculty", "Staff"],
+            required: true
+        },
+        {
+            id: "interests",
+            label: "Select your areas of interest (Pick at least 2)",
+            type: "checkbox",
+            options: ["Web Dev", "AI/ML", "Cybersecurity", "Data Science"],
+            minSelection: 2
+        },
+        {
+            id: "feedback",
+            label: "Comments (Max 50 characters)",
+            type: "text",
+            required: false,
+            maxLength: 50
+        }
+    ];
+
+    const surveyContainer = document.getElementById('surveyFields');
+    const form = document.getElementById('dynamicSurveyForm');
+
+    // 2. DYNAMIC GENERATION: Build the form from the config
+    function renderSurvey() {
+        surveyConfig.forEach(q => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'question-wrapper';
+            wrapper.id = `wrapper_${q.id}`;
+
+            const label = document.createElement('label');
+            label.className = 'question-label';
+            label.innerText = q.required ? `${q.label} *` : q.label;
+            wrapper.appendChild(label);
+
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'error-text';
+            errorMsg.id = `error_${q.id}`;
+
+            // Generate field based on type
+            if (q.type === 'text') {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.id = q.id;
+                input.placeholder = "Enter response...";
+                wrapper.appendChild(input);
+            } 
+            else if (q.type === 'radio' || q.type === 'checkbox') {
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'options-container';
+                
+                q.options.forEach(option => {
+                    const optionLabel = document.createElement('label');
+                    optionLabel.className = 'option-item';
+                    optionLabel.innerHTML = `
+                        <input type="${q.type}" name="${q.id}" value="${option}">
+                        ${option}
+                    `;
+                    optionsDiv.appendChild(optionLabel);
+                });
+                wrapper.appendChild(optionsDiv);
+            }
+
+            wrapper.appendChild(errorMsg);
+            surveyContainer.appendChild(wrapper);
+        });
+    }
+
+    // 3. VALIDATION LOGIC: Check inputs before submission
+    function validateForm() {
+        let isAllValid = true;
+
+        surveyConfig.forEach(q => {
+            const wrapper = document.getElementById(`wrapper_${q.id}`);
+            const errorSpan = document.getElementById(`error_${q.id}`);
+            let isValid = true;
+            let errorMessage = "";
+
+            // Logic for Text inputs
+            if (q.type === 'text') {
+                const val = document.getElementById(q.id).value.trim();
+                if (q.required && !val) {
+                    isValid = false;
+                    errorMessage = "This question is mandatory.";
+                } else if (q.minLength && val.length < q.minLength) {
+                    isValid = false;
+                    errorMessage = `Minimum ${q.minLength} characters required.`;
+                } else if (q.maxLength && val.length > q.maxLength) {
+                    isValid = false;
+                    errorMessage = `Cannot exceed ${q.maxLength} characters.`;
+                }
+            } 
+            // Logic for Radio buttons
+            else if (q.type === 'radio') {
+                const selected = document.querySelector(`input[name="${q.id}"]:checked`);
+                if (q.required && !selected) {
+                    isValid = false;
+                    errorMessage = "Please select one option.";
+                }
+            }
+            // Logic for Checkboxes (Selection Counts)
+            else if (q.type === 'checkbox') {
+                const selectedCount = document.querySelectorAll(`input[name="${q.id}"]:checked`).length;
+                if (q.minSelection && selectedCount < q.minSelection) {
+                    isValid = false;
+                    errorMessage = `Please select at least ${q.minSelection} options.`;
+                }
+            }
+
+            // DOM MANIPULATION: Update UI with feedback
+            if (!isValid) {
+                errorSpan.innerText = errorMessage;
+                errorSpan.style.display = 'block';
+                wrapper.classList.add('invalid-field');
+                isAllValid = false;
+            } else {
+                errorSpan.style.display = 'none';
+                wrapper.classList.remove('invalid-field');
+            }
+        });
+
+        return isAllValid;
+    }
+
+    // 4. SUBMISSION HANDLING
+    form.addEventListener('submit', function(e) {
+        e.preventDefault(); // Prevent submission
+
+        if (validateForm()) {
+            alert("Survey submitted successfully! Check the console for data.");
+            
+            // Log the collected data
+            const formData = new FormData(form);
+            const results = {};
+            surveyConfig.forEach(q => {
+                if(q.type === 'text') results[q.id] = document.getElementById(q.id).value;
+                else results[q.id] = formData.getAll(q.id);
+            });
+            console.log("Survey Results:", results);
+            
+            form.reset();
+        }
+    });
+
+    // Run on Load
+    renderSurvey();
+</script>
+
+</body>
+</html>

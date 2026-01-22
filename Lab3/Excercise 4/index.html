@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Real-Time activity Monitor</title>
+    <style>
+        body { font-family: 'Courier New', Courier, monospace; background: #1a1a1a; color: #00ff00; padding: 20px; }
+        .container { display: grid; grid-template-columns: 1fr 400px; gap: 20px; }
+        
+        /* Interactive Zone */
+        .monitor-zone { background: #222; padding: 30px; border: 2px solid #333; border-radius: 8px; }
+        .input-box { width: 100%; padding: 10px; margin: 10px 0; background: #333; color: #fff; border: 1px solid #444; }
+        
+        /* Logging Panel */
+        .log-panel { background: #000; height: 500px; padding: 15px; border-radius: 8px; border: 1px solid #00ff00; overflow-y: auto; font-size: 12px; }
+        .log-entry { margin-bottom: 5px; border-bottom: 1px solid #004400; padding: 2px 0; }
+        
+        /* Warning System */
+        #warningBox { display: none; background: #ff0000; color: #fff; padding: 15px; margin-bottom: 20px; font-weight: bold; text-align: center; border-radius: 5px; animation: blink 1s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        .controls { margin-top: 20px; }
+        button { background: #00ff00; color: #000; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; margin-right: 10px; }
+        button:hover { background: #00cc00; }
+    </style>
+</head>
+<body id="mainBody">
+
+    <div id="warningBox">⚠️ SUSPICIOUS ACTIVITY DETECTED: EXCESSIVE CLICKING ⚠️</div>
+
+    <div class="container">
+        <div class="monitor-zone" id="captureZone">
+            <h2>User Interaction Zone</h2>
+            <p>Every click, keypress, and focus change is being recorded.</p>
+            <input type="text" class="input-box" id="testInput" placeholder="Type here to test keypress...">
+            <button id="testBtn">Test Click Propagation</button>
+            
+            <div class="controls">
+                <button onclick="resetLogs()">Reset Monitor</button>
+                <button onclick="exportLogs()">Export Log Text</button>
+            </div>
+        </div>
+
+        <div>
+            <h3>Activity Log (DOM)</h3>
+            <div id="logContainer" class="log-panel"></div>
+        </div>
+    </div>
+
+
+
+<script>
+    // 1. Data Structure for Activity Storage
+    let activityLog = [];
+    let clickCount = 0;
+    let clickTimer = null;
+
+    const logContainer = document.getElementById('logContainer');
+    const warningBox = document.getElementById('warningBox');
+    const captureZone = document.getElementById('captureZone');
+
+    // 2. Event Logger Function
+    function logActivity(type, target, phase) {
+        const entry = {
+            timestamp: new Date().toLocaleTimeString(),
+            type: type,
+            target: target,
+            phase: phase
+        };
+        
+        activityLog.push(entry);
+        updateDisplay(entry);
+        checkSecurity(type);
+    }
+
+    // 3. Dynamic DOM Display
+    function updateDisplay(entry) {
+        const div = document.createElement('div');
+        div.className = 'log-entry';
+        div.innerHTML = `[${entry.timestamp}] <span style="color:#fff">${entry.type.toUpperCase()}</span> on ${entry.target} (${entry.phase})`;
+        logContainer.prepend(div); // Show newest at the top
+    }
+
+    // 4. Threshold & Suspicious Activity Detection
+    function checkSecurity(type) {
+        if (type === 'click') {
+            clickCount++;
+            
+            // If more than 5 clicks in 2 seconds, trigger warning
+            if (clickCount > 5) {
+                warningBox.style.display = 'block';
+            }
+
+            // Reset threshold timer
+            clearTimeout(clickTimer);
+            clickTimer = setTimeout(() => {
+                clickCount = 0;
+                warningBox.style.display = 'none';
+            }, 2000);
+        }
+    }
+
+    // 5. Event Listeners with Bubbling & Capturing
+    // CAPTURING Phase (True) - Track from Top Down
+    window.addEventListener('click', (e) => {
+        logActivity('click', e.target.tagName, 'Capturing');
+    }, true);
+
+    // BUBBLING Phase (False) - Track from Bottom Up
+    captureZone.addEventListener('click', (e) => {
+        logActivity('click', e.target.tagName, 'Bubbling');
+    }, false);
+
+    // Keypress Tracking
+    document.getElementById('testInput').addEventListener('keydown', (e) => {
+        logActivity('keypress', `Key: ${e.key}`, 'Direct');
+    });
+
+    // Focus/Blur Tracking
+    document.getElementById('testInput').addEventListener('focus', () => {
+        logActivity('focus', 'Input Field', 'Direct');
+    });
+
+    // 6. Export and Reset Functions
+    function resetLogs() {
+        activityLog = [];
+        logContainer.innerHTML = '';
+        warningBox.style.display = 'none';
+        alert("Monitor Reset Successfully.");
+    }
+
+    function exportLogs() {
+        if (activityLog.length === 0) return alert("No logs to export.");
+        
+        let text = "USER ACTIVITY LOG\n=================\n";
+        activityLog.forEach(log => {
+            text += `[${log.timestamp}] ${log.type} | Target: ${log.target} | Phase: ${log.phase}\n`;
+        });
+
+        // Simple download trigger
+        const blob = new Blob([text], { type: 'text/plain' });
+        const anchor = document.createElement('a');
+        anchor.download = 'activity_log.txt';
+        anchor.href = window.URL.createObjectURL(blob);
+        anchor.click();
+    }
+</script>
+
+</body>
+</html>

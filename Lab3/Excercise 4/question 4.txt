@@ -1,0 +1,11 @@
+Exercise 4: Real-Time User Activity Monitor
+Scenario:
+Develop a system to monitor and log user activities (clicks, key presses, focus changes) in real time.
+Requirements:
+1.	Track clicks, key presses, and focus events using event listeners.
+2.	Store each activity in an array of objects.
+3.	Use event bubbling and capturing to track both direct and propagated events.
+4.	Dynamically display the activity log using the DOM.
+5.	Set thresholds for suspicious activity (e.g., too many clicks) and trigger warnings.
+6.	Provide a button to reset and export the activity log as formatted text.
+

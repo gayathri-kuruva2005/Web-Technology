@@ -1,0 +1,11 @@
+Exercise 5: Multi-Stage Client-Side Form Workflow Engine
+Scenario:
+Design a multi-step form with strict validation at each stage, where users must complete each stage before moving on.
+Requirements:
+1.	Divide the form into four stages with different validation rules for each.
+2.	Use JavaScript to control navigation, ensuring users can only proceed if all fields are valid.
+3.	Display progress dynamically using a progress bar.
+4.	Use DOM manipulation to show/hide stages based on user navigation.
+5.	Prevent navigation and form submission if any stage fails validation.
+6.	Store user input temporarily in JavaScript variables.
+

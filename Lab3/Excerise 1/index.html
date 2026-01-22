@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 3: Adaptive Registration System</title>
+    
+    <style>
+        /* CSS SECTION */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            padding: 40px;
+            margin: 0;
+        }
+
+        .registration-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 450px;
+        }
+
+        h2 { color: #1a73e8; margin-top: 0; text-align: center; }
+
+        .form-group { margin-bottom: 18px; position: relative; }
+
+        label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; color: #444; }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        /* Highlight invalid inputs */
+        .invalid { border-color: #d93025 !important; background-color: #fce8e6; }
+
+        .error { color: #d93025; font-size: 12px; margin-top: 5px; display: block; min-height: 15px; }
+
+        .hidden { display: none; }
+
+        /* Password Strength Meter */
+        #strengthContainer { height: 6px; background: #eee; margin-top: 8px; border-radius: 3px; overflow: hidden; }
+        #strengthMeter { height: 100%; width: 0%; transition: 0.4s; }
+        .weak { background: #d93025; width: 33.3%; }
+        .medium { background: #f9ab00; width: 66.6%; }
+        .strong { background: #1e8e3e; width: 100%; }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover { background-color: #1557b0; }
+    </style>
+</head>
+<body>
+
+<div class="registration-card">
+    <h2>User Registration</h2>
+    <form id="regForm">
+        <div class="form-group">
+            <label>Name</label>
+            <input type="text" id="name" placeholder="Enter full name" required>
+            <span class="error" id="nameError"></span>
+        </div>
+
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="email" placeholder="e.g. user@domain.edu" required>
+            <span class="error" id="emailError"></span>
+        </div>
+
+        <div class="form-group">
+            <label>Role</label>
+            <select id="role" onchange="applyDynamicRules()">
+                <option value="Student">Student</option>
+                <option value="Teacher">Teacher</option>
+                <option value="Admin">Admin</option>
+            </select>
+        </div>
+
+        <div class="form-group hidden" id="adminCodeGroup">
+            <label>Admin Secret Access Code</label>
+            <input type="password" id="adminCode" placeholder="Enter ROOT code">
+            <span class="error" id="adminCodeError"></span>
+        </div>
+
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="password" placeholder="Create a password" required>
+            <div id="strengthContainer"><div id="strengthMeter"></div></div>
+            <span class="error" id="passwordError"></span>
+        </div>
+
+        <div class="form-group">
+            <label>Confirm Password</label>
+            <input type="password" id="confirmPassword" placeholder="Repeat password" required>
+            <span class="error" id="confirmPasswordError"></span>
+        </div>
+
+        <div class="form-group">
+            <label>Age</label>
+            <input type="number" id="age" placeholder="Minimum age varies by role" required>
+            <span class="error" id="ageError"></span>
+        </div>
+
+        <div class="form-group">
+            <label>Skills (Comma separated)</label>
+            <input type="text" id="skills" placeholder="Java, Python, HTML">
+        </div>
+
+        <button type="submit">Register Now</button>
+    </form>
+</div>
+
+<script>
+    /* JAVASCRIPT SECTION */
+    const form = document.getElementById('regForm');
+    const roleSelect = document.getElementById('role');
+    const adminGroup = document.getElementById('adminCodeGroup');
+    const passwordInput = document.getElementById('password');
+
+    // 1. DYNAMIC UI: Change form based on role
+    function applyDynamicRules() {
+        const role = roleSelect.value;
+        // Show Admin code field only for Admins
+        if (role === 'Admin') {
+            adminGroup.classList.remove('hidden');
+        } else {
+            adminGroup.classList.add('hidden');
+        }
+        // Re-validate password when role changes
+        validatePasswordStrength(passwordInput.value);
+    }
+
+    // 2. PASSWORD STRENGTH & ROLE-BASED RULES
+    passwordInput.addEventListener('input', (e) => validatePasswordStrength(e.target.value));
+
+    function validatePasswordStrength(pass) {
+        const meter = document.getElementById('strengthMeter');
+        const role = roleSelect.value;
+        
+        meter.className = ''; // Reset CSS
+        if (pass.length > 0 && pass.length < 6) meter.classList.add('weak');
+        else if (pass.length >= 6 && pass.length < 10) meter.classList.add('medium');
+        else if (pass.length >= 10) meter.classList.add('strong');
+
+        // ADMIN RULE: Must be strong
+        if (role === 'Admin' && pass.length < 10) {
+            showError('password', 'Admin passwords must be at least 10 characters.');
+        } else if (pass.length < 6 && pass.length > 0) {
+            showError('password', 'Password is too weak.');
+        } else {
+            clearError('password');
+        }
+    }
+
+    // 3. UTILITY FUNCTIONS FOR FEEDBACK
+    function showError(id, msg) {
+        const input = document.getElementById(id);
+        const errorSpan = document.getElementById(id + 'Error');
+        input.classList.add('invalid');
+        if (errorSpan) errorSpan.innerText = msg;
+    }
+
+    function clearError(id) {
+        const input = document.getElementById(id);
+        const errorSpan = document.getElementById(id + 'Error');
+        input.classList.remove('invalid');
+        if (errorSpan) errorSpan.innerText = '';
+    }
+
+    // 4. FORM SUBMISSION VALIDATION
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        let isValid = true;
+
+        // Validation: Password Matching
+        const p1 = document.getElementById('password').value;
+        const p2 = document.getElementById('confirmPassword').value;
+        if (p1 !== p2) {
+            showError('confirmPassword', 'Passwords do not match.');
+            isValid = false;
+        } else {
+            clearError('confirmPassword');
+        }
+
+        // Validation: Email Domain for Teachers/Students
+        const email = document.getElementById('email').value;
+        const role = roleSelect.value;
+        if ((role === 'Student' || role === 'Teacher') && !email.endsWith('.edu')) {
+            showError('email', 'Academic roles require a .edu email address.');
+            isValid = false;
+        } else {
+            clearError('email');
+        }
+
+        // Validation: Admin Code
+        if (role === 'Admin') {
+            const code = document.getElementById('adminCode').value;
+            if (code !== 'ROOT123') {
+                showError('adminCode', 'Invalid Admin Access Code.');
+                isValid = false;
+            } else {
+                clearError('adminCode');
+            }
+        }
+
+        // Validation: Age (Teachers must be 21+)
+        const age = document.getElementById('age').value;
+        if (role === 'Teacher' && age < 21) {
+            showError('age', 'Teachers must be at least 21 years old.');
+            isValid = false;
+        } else {
+            clearError('age');
+        }
+
+        if (isValid) {
+            alert(`Registration Successful!\nRole: ${role}\nUser: ${document.getElementById('name').value}`);
+            form.reset();
+            applyDynamicRules();
+        }
+    });
+</script>
+
+</body>
+</html>
