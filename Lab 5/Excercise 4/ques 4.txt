@@ -1,0 +1,21 @@
+Exercise 4: Product Inventory System using JSON
+Scenario:
+Build a Product Inventory System that manages products using a local JSON file.
+Requirements:
+•	Create inventory.json with:
+o	Product ID
+o	Name
+o	Category
+o	Price
+o	Stock Quantity
+•	Use AJAX (Fetch API) to load JSON data.
+•	Perform:
+o	Add new product.
+o	Edit product price/stock.
+o	Delete product.
+o	Search product by category.
+•	Dynamically update inventory table.
+•	Implement:
+o	Error handling for invalid data.
+o	Conditional formatting (e.g., low stock warning).
+•	Display total inventory value calculated dynamically.

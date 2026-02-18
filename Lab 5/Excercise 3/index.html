@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Record System (JSON)</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f8f9fa; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .form-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 25px; background: #e9ecef; padding: 15px; border-radius: 8px; }
+        input { padding: 10px; border: 1px solid #ced4da; border-radius: 5px; }
+        button { padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-add { background: #28a745; color: white; }
+        .btn-edit { background: #ffc107; color: black; margin-right: 5px; }
+        .btn-delete { background: #dc3545; color: white; }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th, td { padding: 12px; border: 1px solid #dee2e6; text-align: left; }
+        th { background: #343a40; color: white; }
+        tr:nth-child(even) { background: #f2f2f2; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Student Record System</h2>
+
+    <div class="form-section">
+        <input type="text" id="sId" placeholder="Student ID">
+        <input type="text" id="sName" placeholder="Full Name">
+        <input type="text" id="sCourse" placeholder="Course">
+        <input type="number" id="sMarks" placeholder="Marks">
+        <button class="btn-add" onclick="createStudent()">Add Student</button>
+    </div>
+
+    <table id="studentTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Course</th>
+                <th>Marks</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<script>
+    let studentList = [];
+
+    // Requirement: Use Fetch API to retrieve JSON data
+    async function loadStudents() {
+        try {
+            const response = await fetch('students.json');
+            
+            // Requirement: Handle JSON parsing errors
+            if (!response.ok) throw new Error("Could not fetch students.json");
+            
+            // Requirement: Parse JSON response using response.json()
+            studentList = await response.json();
+            
+            displayStudents();
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Failed to load student data. Ensure you are using a local server.");
+        }
+    }
+
+    // Requirement: Read -> Display all students in a table
+    function displayStudents() {
+        const tbody = document.querySelector("#studentTable tbody");
+        tbody.innerHTML = "";
+
+        studentList.forEach((student, index) => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${student.id}</td>
+                    <td>${student.name}</td>
+                    <td>${student.course}</td>
+                    <td>${student.marks}</td>
+                    <td>
+                        <button class="btn-edit" onclick="updateStudent(${index})">Edit</button>
+                        <button class="btn-delete" onclick="deleteStudent(${index})">Delete</button>
+                    </td>
+                </tr>`;
+        });
+    }
+
+    // Requirement: Create -> Add new student object
+    function createStudent() {
+        const id = document.getElementById('sId').value.trim();
+        const name = document.getElementById('sName').value.trim();
+        const course = document.getElementById('sCourse').value.trim();
+        const marks = document.getElementById('sMarks').value.trim();
+
+        // Requirement: Validate input fields before submission
+        if (!id || !name || !course || !marks) {
+            alert("Validation Error: Please fill all fields.");
+            return;
+        }
+
+        const newStudent = { id, name, course, marks: parseInt(marks) };
+        studentList.push(newStudent);
+        
+        // Requirement: Update UI dynamically without page refresh
+        displayStudents();
+        clearInputs();
+    }
+
+    // Requirement: Update -> Modify marks or course
+    function updateStudent(index) {
+        const choice = prompt("What would you like to update? (Type 'marks' or 'course')").toLowerCase();
+        
+        if (choice === 'marks') {
+            const newMarks = prompt("Enter new marks:");
+            if (newMarks !== null && newMarks !== "") {
+                studentList[index].marks = parseInt(newMarks);
+            }
+        } else if (choice === 'course') {
+            const newCourse = prompt("Enter new course:");
+            if (newCourse) {
+                studentList[index].course = newCourse;
+            }
+        } else {
+            alert("Invalid option selected.");
+            return;
+        }
+
+        displayStudents();
+    }
+
+    // Requirement: Delete -> Remove student object
+    function deleteStudent(index) {
+        if (confirm("Are you sure you want to remove this record?")) {
+            studentList.splice(index, 1);
+            displayStudents();
+        }
+    }
+
+    function clearInputs() {
+        document.getElementById('sId').value = "";
+        document.getElementById('sName').value = "";
+        document.getElementById('sCourse').value = "";
+        document.getElementById('sMarks').value = "";
+    }
+
+    // Initialize
+    window.onload = loadStudents;
+</script>
+
+</body>
+</html>

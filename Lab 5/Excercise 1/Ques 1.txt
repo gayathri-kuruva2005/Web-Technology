@@ -1,0 +1,23 @@
+Exercise 1: Employee Management System using Local XML
+Scenario:
+Create an Employee Management System that performs CRUD operations on employee data stored in a local XML file.
+Requirements:
+•	Create a local XML file employees.xml with fields:
+o	Employee ID
+o	Name
+o	Department
+o	Salary
+•	Use AJAX to:
+o	Fetch and display employee records in a table.
+•	Parse XML response using:
+o	responseXML
+o	getElementsByTagName()
+•	Implement CRUD operations:
+o	Create → Add new employee node dynamically.
+o	Read → Display all employees.
+o	Update → Modify salary or department.
+o	Delete → Remove employee node.
+•	Use DOM manipulation to update UI dynamically.
+•	Show proper success and error messages.
+•	Handle empty XML or malformed XML errors.
+

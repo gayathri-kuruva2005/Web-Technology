@@ -1,0 +1,19 @@
+Exercise 3: Student Record System using Local JSON
+Scenario:
+Design a Student Record System that performs CRUD operations on student data stored in a local JSON file.
+Requirements:
+•	Create students.json containing:
+o	ID
+o	Name
+o	Course
+o	Marks
+•	Use Fetch API to retrieve JSON data.
+•	Parse JSON response using response.json().
+•	Implement CRUD operations:
+o	Create → Add new student object.
+o	Read → Display all students in a table.
+o	Update → Modify marks or course.
+o	Delete → Remove student object.
+•	Update UI dynamically without page refresh.
+•	Handle JSON parsing errors.
+•	Validate input fields before submission.

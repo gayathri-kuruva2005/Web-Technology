@@ -1,0 +1,18 @@
+Exercise 2: Library Book Tracker using XML DOM Manipulation
+Scenario:
+Develop a Library Book Tracker system that manages books stored in a local XML file.
+Requirements:
+•	Create books.xml with:
+o	Book ID
+o	Title
+o	Author
+o	Availability Status
+•	Use AJAX GET request to load XML data.
+•	Use XML DOM methods to:
+o	Add new <book> node.
+o	Update availability status.
+o	Delete a book entry.
+•	Dynamically refresh book list without page reload.
+•	Implement validation before performing operations.
+•	Display updated XML data in formatted table view.
+•	Ensure data consistency after each operation.

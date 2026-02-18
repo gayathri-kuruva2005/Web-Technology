@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product Inventory System</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f4f4f9; color: #333; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+        
+        /* Form Styling */
+        .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; }
+        input { padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
+        
+        /* Table Styling */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; border: 1px solid #eee; text-align: left; }
+        th { background: #1a73e8; color: white; }
+        
+        /* Requirement: Conditional Formatting (Low Stock Warning) */
+        .low-stock { background-color: #fff5f5; color: #d93025; font-weight: bold; }
+        .low-stock-badge { background: #d93025; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+
+        /* Summary Styling */
+        .summary-box { margin-top: 20px; padding: 15px; background: #e8f0fe; border-radius: 8px; text-align: right; }
+        .total-val { font-size: 1.4rem; color: #1a73e8; font-weight: bold; }
+        
+        .btn { padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-add { background: #1a73e8; color: white; width: 100%; grid-column: span 1; }
+        .btn-edit { background: #fbbc04; color: #333; margin-right: 5px; }
+        .btn-del { background: #ea4335; color: white; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Product Inventory System</h2>
+
+    <div style="margin-bottom: 20px;">
+        <input type="text" id="searchBox" placeholder="🔍 Search by Category (e.g. Electronics)" style="width: 100%; box-sizing: border-box;" onkeyup="searchByProductCategory()">
+    </div>
+
+    <div class="controls">
+        <input type="text" id="pId" placeholder="Prod ID">
+        <input type="text" id="pName" placeholder="Product Name">
+        <input type="text" id="pCat" placeholder="Category">
+        <input type="number" id="pPrice" placeholder="Price">
+        <input type="number" id="pStock" placeholder="Stock Qty">
+        <button class="btn btn-add" onclick="addProduct()">Add Product</button>
+    </div>
+
+    <table id="inventoryTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <div class="summary-box">
+        <span>Total Inventory Value: </span>
+        <span id="totalValueDisplay" class="total-val">$0.00</span>
+    </div>
+</div>
+
+<script>
+    let inventory = [];
+
+    // Requirement: Use Fetch API to load JSON data
+    async function initInventory() {
+        try {
+            const response = await fetch('inventory.json');
+            if (!response.ok) throw new Error("Failed to load inventory file.");
+            inventory = await response.json();
+            updateUI(inventory);
+        } catch (error) {
+            console.error(error);
+            alert("Error loading data. Make sure you're using a local server.");
+        }
+    }
+
+    // Requirement: Dynamically update inventory table & calculate total value
+    function updateUI(dataList) {
+        const tbody = document.querySelector("#inventoryTable tbody");
+        const totalDisplay = document.getElementById("totalValueDisplay");
+        tbody.innerHTML = "";
+        let totalVal = 0;
+
+        dataList.forEach((item, index) => {
+            const itemTotal = item.price * item.stock;
+            totalVal += itemTotal;
+
+            // Requirement: Conditional formatting for low stock (< 5)
+            const isLow = item.stock < 5;
+            const rowClass = isLow ? "low-stock" : "";
+
+            tbody.innerHTML += `
+                <tr class="${rowClass}">
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td>${item.category}</td>
+                    <td>$${item.price.toFixed(2)}</td>
+                    <td>
+                        ${item.stock} 
+                        ${isLow ? '<span class="low-stock-badge">LOW</span>' : ''}
+                    </td>
+                    <td>
+                        <button class="btn btn-edit" onclick="editProduct(${index})">Edit</button>
+                        <button class="btn btn-del" onclick="deleteProduct(${index})">Delete</button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        totalDisplay.innerText = `$${totalVal.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+    }
+
+    // Requirement: Add new product with Error Handling
+    function addProduct() {
+        const id = document.getElementById('pId').value.trim();
+        const name = document.getElementById('pName').value.trim();
+        const cat = document.getElementById('pCat').value.trim();
+        const price = parseFloat(document.getElementById('pPrice').value);
+        const stock = parseInt(document.getElementById('pStock').value);
+
+        // Requirement: Error handling for invalid data
+        if (!id || !name || isNaN(price) || isNaN(stock) || price < 0 || stock < 0) {
+            alert("Invalid Input: Please ensure all fields are correct and numbers are positive.");
+            return;
+        }
+
+        inventory.push({ id, name, category: cat, price, stock });
+        updateUI(inventory);
+        clearForm();
+    }
+
+    // Requirement: Edit product price/stock
+    function editProduct(index) {
+        const field = prompt("What would you like to edit? (price/stock)").toLowerCase();
+        
+        if (field === 'price') {
+            const newPrice = parseFloat(prompt("Enter new price:"));
+            if (!isNaN(newPrice) && newPrice >= 0) {
+                inventory[index].price = newPrice;
+            } else { alert("Invalid price."); }
+        } else if (field === 'stock') {
+            const newStock = parseInt(prompt("Enter new stock quantity:"));
+            if (!isNaN(newStock) && newStock >= 0) {
+                inventory[index].stock = newStock;
+            } else { alert("Invalid stock."); }
+        } else {
+            alert("Invalid option.");
+        }
+        updateUI(inventory);
+    }
+
+    // Requirement: Delete product
+    function deleteProduct(index) {
+        if (confirm("Delete this product?")) {
+            inventory.splice(index, 1);
+            updateUI(inventory);
+        }
+    }
+
+    // Requirement: Search product by category
+    function searchByProductCategory() {
+        const query = document.getElementById('searchBox').value.toLowerCase();
+        const filtered = inventory.filter(item => 
+            item.category.toLowerCase().includes(query)
+        );
+        updateUI(filtered);
+    }
+
+    function clearForm() {
+        document.querySelectorAll('.controls input').forEach(input => input.value = "");
+    }
+
+    window.onload = initInventory;
+</script>
+
+</body>
+</html>
