@@ -1,0 +1,20 @@
+Exercise 3: AJAX CRUD Operations (Student Management System)
+Scenario:
+Create a student management system that performs CRUD operations using AJAX without page reload.
+Requirements:
+•	Create a form with:
+o	Student ID
+o	Name
+o	Department
+o	Marks
+•	Implement AJAX requests for:
+o	Create → Add new student.
+o	Read → Fetch and display students in table.
+o	Update → Modify student details.
+o	Delete → Remove student record.
+•	Use:
+o	Fetch API or XMLHttpRequest.
+o	JSON format for request/response.
+•	Dynamically update table after each operation.
+•	Display success and error messages.
+•	Handle HTTP status codes properly (200, 404, 500).

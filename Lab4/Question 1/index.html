@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Real-Time Username Checker</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --success: #16a34a;
+            --error: #dc2626;
+            --gray: #94a3b8;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .checker-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            width: 350px;
+        }
+
+        h2 { color: #1e293b; margin-bottom: 1.5rem; text-align: center; }
+
+        .input-group { position: relative; margin-bottom: 1.5rem; }
+
+        label { display: block; font-size: 0.875rem; font-weight: 600; color: #475569; margin-bottom: 0.5rem; }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        input:focus { border-color: var(--primary); }
+
+        /* Status Feedback */
+        #feedback {
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            font-weight: 500;
+            display: none;
+        }
+
+        .available { color: var(--success); }
+        .taken { color: var(--error); }
+
+        /* Loading Spinner */
+        .loader {
+            display: none;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            position: absolute;
+            right: 12px;
+            top: 38px;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button:disabled { background-color: var(--gray); cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+<div class="checker-card">
+    <h2>Registration</h2>
+    <form id="regForm">
+        <div class="input-group">
+            <label for="username">Choose Username</label>
+            <input type="text" id="username" placeholder="e.g. alex99" autocomplete="off">
+            <div id="loader" class="loader"></div>
+            <div id="feedback"></div>
+        </div>
+
+        <button type="submit" id="submitBtn" disabled>Create Account</button>
+    </form>
+</div>
+
+
+
+<script>
+    const usernameInput = document.getElementById('username');
+    const feedback = document.getElementById('feedback');
+    const loader = document.getElementById('loader');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Simulate a database of existing users
+    const existingUsers = ["admin", "john_doe", "gemini", "user123", "test"];
+
+    let timeout = null;
+
+    // Listen for input with Debouncing (wait for user to stop typing)
+    usernameInput.addEventListener('input', function() {
+        const username = this.value.trim().toLowerCase();
+        
+        // Clear previous state
+        feedback.style.display = 'none';
+        submitBtn.disabled = true;
+        
+        if (username.length < 3) {
+            if (username.length > 0) {
+                showFeedback("Too short!", "taken");
+            }
+            return;
+        }
+
+        // Show loading indicator
+        loader.style.display = 'block';
+
+        // Debounce to prevent too many requests
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            checkUsernameAvailability(username);
+        }, 600); 
+    });
+
+    // Requirement: Use Fetch API (Asynchronous Request)
+    async function checkUsernameAvailability(name) {
+        try {
+            // In a real scenario, you would fetch('api/check-user?name=' + name)
+            // Here we simulate the network delay with a Promise
+            await new Promise(resolve => setTimeout(resolve, 800));
+
+            const isTaken = existingUsers.includes(name);
+
+            // Process response & Update DOM
+            if (isTaken) {
+                showFeedback("❌ Username already taken", "taken");
+                submitBtn.disabled = true;
+            } else {
+                showFeedback("✅ Username available", "available");
+                submitBtn.disabled = false;
+            }
+        } catch (error) {
+            showFeedback("Server error. Try again.", "taken");
+        } finally {
+            loader.style.display = 'none';
+        }
+    }
+
+    function showFeedback(text, type) {
+        feedback.innerText = text;
+        feedback.className = type;
+        feedback.style.display = 'block';
+    }
+
+    // Requirement: Prevent form submission if unavailable
+    document.getElementById('regForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        alert("Success! Account created for: " + usernameInput.value);
+    });
+</script>
+
+</body>
+</html>

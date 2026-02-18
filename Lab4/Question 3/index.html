@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student CRUD AJAX</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .form-box { background: #eee; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background: #333; color: white; }
+        .msg { padding: 10px; margin: 10px 0; border-radius: 4px; display: none; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+
+<h2>Student Management System</h2>
+<div id="message" class="msg"></div>
+
+<div class="form-box">
+    <input type="hidden" id="editIndex">
+    <input type="text" id="stuId" placeholder="ID">
+    <input type="text" id="stuName" placeholder="Name">
+    <input type="text" id="stuDept" placeholder="Department">
+    <input type="number" id="stuMarks" placeholder="Marks">
+    <button onclick="saveStudent()" id="saveBtn">Add Student</button>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th><th>Name</th><th>Dept</th><th>Marks</th><th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="studentTable"></tbody>
+</table>
+
+<script>
+    let students = JSON.parse(localStorage.getItem('students')) || [];
+
+    async function handleResponse(status, data) {
+        const msgDiv = document.getElementById('message');
+        msgDiv.style.display = "block";
+        if (status === 200) {
+            msgDiv.className = "msg success";
+            msgDiv.innerText = "Operation Successful";
+        } else {
+            msgDiv.className = "msg error";
+            msgDiv.innerText = "Error: " + status;
+        }
+        setTimeout(() => msgDiv.style.display = "none", 3000);
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('studentTable');
+        tbody.innerHTML = students.map((s, index) => `
+            <tr>
+                <td>${s.id}</td><td>${s.name}</td><td>${s.dept}</td><td>${s.marks}</td>
+                <td>
+                    <button onclick="editStudent(${index})">Edit</button>
+                    <button onclick="deleteStudent(${index})">Delete</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    async function saveStudent() {
+        const id = document.getElementById('stuId').value;
+        const name = document.getElementById('stuName').value;
+        const dept = document.getElementById('stuDept').value;
+        const marks = document.getElementById('stuMarks').value;
+        const editIdx = document.getElementById('editIndex').value;
+
+        if (!id || !name) return handleResponse(404);
+
+        const studentData = { id, name, dept, marks };
+
+        if (editIdx === "") {
+            // Create
+            students.push(studentData);
+        } else {
+            // Update
+            students[editIdx] = studentData;
+            document.getElementById('editIndex').value = "";
+            document.getElementById('saveBtn').innerText = "Add Student";
+        }
+
+        localStorage.setItem('students', JSON.stringify(students));
+        renderTable();
+        handleResponse(200);
+        clearForm();
+    }
+
+    function editStudent(index) {
+        const s = students[index];
+        document.getElementById('stuId').value = s.id;
+        document.getElementById('stuName').value = s.name;
+        document.getElementById('stuDept').value = s.dept;
+        document.getElementById('stuMarks').value = s.marks;
+        document.getElementById('editIndex').value = index;
+        document.getElementById('saveBtn').innerText = "Update Student";
+    }
+
+    async function deleteStudent(index) {
+        if(confirm("Delete student?")) {
+            students.splice(index, 1);
+            localStorage.setItem('students', JSON.stringify(students));
+            renderTable();
+            handleResponse(200);
+        }
+    }
+
+    function clearForm() {
+        document.querySelectorAll('input').forEach(i => i.value = "");
+    }
+
+    renderTable();
+</script>
+</body>
+</html>

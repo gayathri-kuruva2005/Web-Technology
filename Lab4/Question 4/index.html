@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Info Dashboard</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 50px; }
+        .dashboard { background: white; padding: 30px; border-radius: 12px; width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
+        h2 { color: #1a73e8; margin-top: 0; }
+        input { width: 80%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; outline: none; }
+        button { width: 87%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #1557b0; }
+        
+        /* Requirement: Loading Spinner */
+        #loader { display: none; margin: 20px auto; width: 30px; height: 30px; border: 4px solid #f3f3f3; border-top: 4px solid #1a73e8; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .result-box { margin-top: 20px; padding: 15px; border-radius: 8px; background: #f8f9fa; min-height: 120px; color: #333; }
+        .cache-info { font-size: 0.85rem; color: #666; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; }
+        .error { color: #d93025; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="dashboard">
+    <h2>Live Weather</h2>
+    <input type="text" id="cityInput" placeholder="Enter city (e.g., London)">
+    <button id="searchBtn">Get Weather Info</button>
+    
+    <div id="loader"></div>
+    
+    <div id="weatherDisplay" class="result-box">
+        <p>Search for a city to see live weather data.</p>
+    </div>
+    
+    <div id="cacheDisplay" class="cache-info">No previous searches.</div>
+</div>
+
+<script>
+    // Requirement: Cache last searched city result in JavaScript variable
+    let lastSearchedCity = "";
+
+    const searchBtn = document.getElementById('searchBtn');
+    const cityInput = document.getElementById('cityInput');
+    const display = document.getElementById('weatherDisplay');
+    const loader = document.getElementById('loader');
+    const cacheDisp = document.getElementById('cacheDisplay');
+
+    searchBtn.addEventListener('click', getWeather);
+
+    async function getWeather() {
+        const city = cityInput.value.trim();
+        if (!city) return;
+
+        // Requirement: Loading spinner during request
+        loader.style.display = "block";
+        display.innerHTML = "";
+
+        try {
+            /* Requirement: Use AJAX/Fetch to call a public API.
+              We first use the Geocoding API to turn the City Name into Coordinates (Latitude/Longitude)
+            */
+            const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1`);
+            const geoData = await geoRes.json();
+
+            // Requirement: Error handling (invalid city)
+            if (!geoData.results) {
+                throw new Error("City not found. Please try another.");
+            }
+
+            const { latitude, longitude, name } = geoData.results[0];
+
+            /* Requirement: Send GET request with parameters */
+            const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,is_day&timezone=auto`);
+            
+            if (!weatherRes.ok) throw new Error("Network error occurred.");
+
+            // Requirement: Parse JSON response
+            const weatherData = await weatherRes.json();
+
+            // Requirement: Update UI dynamically (Temp, Humidity, Condition)
+            display.innerHTML = `
+                <h3 style="margin:0">${name}</h3>
+                <p style="font-size: 1.5rem; margin: 10px 0;">${weatherData.current.temperature_2m}°C</p>
+                <p><strong>Humidity:</strong> ${weatherData.current.relative_humidity_2m}%</p>
+                <p><strong>Condition:</strong> ${weatherData.current.is_day ? "☀️ Day Time" : "🌙 Night Time"}</p>
+            `;
+
+            // Requirement: Cache last searched city result
+            lastSearchedCity = name;
+            cacheDisp.innerText = "Last searched city: " + lastSearchedCity;
+
+        } catch (err) {
+            // Requirement: Error handling UI update
+            display.innerHTML = `<p class="error">⚠️ ${err.message}</p>`;
+        } finally {
+            loader.style.display = "none";
+        }
+    }
+</script>
+
+</body>
+</html>

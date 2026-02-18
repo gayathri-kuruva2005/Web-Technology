@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AJAX Product Search</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+        .search-container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
+        input { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        .result-item { padding: 10px; border-bottom: 1px solid #eee; }
+        .result-item:last-child { border-bottom: none; }
+        .price { color: green; font-weight: bold; }
+        .no-results { color: #888; text-align: center; padding: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="search-container">
+    <h2>Product Search</h2>
+    <input type="text" id="searchInput" placeholder="Search products (e.g. Phone, Laptop)...">
+    <div id="results"></div>
+</div>
+
+<script>
+    // Simulated JSON Data
+    const productsJSON = [
+        { name: "iPhone 15", price: "$999", category: "Electronics" },
+        { name: "MacBook Pro", price: "$1999", category: "Electronics" },
+        { name: "Coffee Maker", price: "$80", category: "Home" },
+        { name: "Gaming Chair", price: "$250", category: "Furniture" }
+    ];
+
+    const searchInput = document.getElementById('searchInput');
+    const resultsDiv = document.getElementById('results');
+    let debounceTimer;
+
+    searchInput.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        const query = searchInput.value.toLowerCase().trim();
+        
+        if (!query) {
+            resultsDiv.innerHTML = "";
+            return;
+        }
+
+        // Debouncing: Wait 500ms after typing stops
+        debounceTimer = setTimeout(() => {
+            fetchProducts(query);
+        }, 500);
+    });
+
+    async function fetchProducts(query) {
+        resultsDiv.innerHTML = "Searching...";
+        
+        try {
+            // Simulating AJAX Fetch
+            const response = await new Promise((resolve) => {
+                setTimeout(() => {
+                    const filtered = productsJSON.filter(p => 
+                        p.name.toLowerCase().includes(query) || 
+                        p.category.toLowerCase().includes(query)
+                    );
+                    resolve(filtered);
+                }, 300);
+            });
+
+            displayResults(response);
+        } catch (error) {
+            resultsDiv.innerHTML = "<p style='color:red'>Error fetching results.</p>";
+        }
+    }
+
+    function displayResults(data) {
+        if (data.length === 0) {
+            resultsDiv.innerHTML = "<p class='no-results'>No results found</p>";
+            return;
+        }
+
+        resultsDiv.innerHTML = data.map(p => `
+            <div class="result-item">
+                <strong>${p.name}</strong> (${p.category})<br>
+                <span class="price">${p.price}</span>
+            </div>
+        `).join('');
+    }
+</script>
+</body>
+</html>

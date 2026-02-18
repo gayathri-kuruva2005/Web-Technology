@@ -1,0 +1,14 @@
+Exercise 1: Real-Time Username Availability Checker
+Scenario:
+You are building a registration system where the username must be verified instantly without refreshing the page.
+Requirements:
+•	Create a registration form with a username input field.
+•	Use AJAX (XMLHttpRequest or Fetch API) to send the username to a backend service.
+•	Simulate server-side validation using:
+o	A local JSON file
+•	Process the response:
+o	If username exists → show "Username already taken".
+o	If available → show "Username available".
+•	Display validation feedback dynamically using DOM manipulation.
+•	Prevent form submission if username is unavailable.
+•	Show loading indicator while request is in progress.

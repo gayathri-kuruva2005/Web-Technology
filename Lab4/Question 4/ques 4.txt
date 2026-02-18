@@ -1,0 +1,16 @@
+Exercise 4: AJAX Weather Information Dashboard
+Scenario:
+Develop a dashboard that fetches live weather data using a public API.
+Requirements:
+•	Create input field for city name.
+•	Use AJAX to call a public weather API (e.g., OpenWeather).
+•	Send GET request with query parameters.
+•	Parse JSON response and display:
+o	Temperature
+o	Humidity
+o	Weather condition
+•	Implement:
+o	Error handling (invalid city, network error).
+o	Loading spinner during request.
+•	Update UI dynamically without page reload.
+•	Cache last searched city result in JavaScript variable.

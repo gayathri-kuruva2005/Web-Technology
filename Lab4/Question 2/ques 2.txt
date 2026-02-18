@@ -1,0 +1,18 @@
+Exercise 2: AJAX-Based Product Search System
+Scenario:
+Develop a live product search feature where results are fetched from the server without page reload.
+Requirements:
+•	Create a search input field.
+•	Store product details in:
+o	A local JSON file 
+•	Use AJAX to:
+o	Send search query.
+o	Fetch matching results.
+•	Parse JSON response and dynamically display:
+o	Product Name
+o	Price
+o	Category
+•	Implement:
+o	Debouncing (delay API calls while typing).
+o	Error handling for failed requests.
+•	Show "No results found" if response is empty.
