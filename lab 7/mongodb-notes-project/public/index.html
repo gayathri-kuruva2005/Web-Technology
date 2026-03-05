@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Manager & Book Finder</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Student Notes (CRUD)</h1>
+        <div class="form">
+            <input type="text" id="title" placeholder="Note Title">
+            <input type="text" id="subject" placeholder="Subject">
+            <textarea id="description" placeholder="Description"></textarea>
+            <button onclick="addNote()">Add Note</button>
+        </div>
+        <div id="notesList"></div>
+
+        <hr>
+
+        <h1>Online Book Finder</h1>
+        <input type="text" id="bookSearch" placeholder="Search title..." onkeyup="searchBooks()">
+        <button onclick="getTopRated()">Show Top Rated</button>
+        <ul id="bookList"></ul>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
